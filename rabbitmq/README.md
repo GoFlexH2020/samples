@@ -1,6 +1,6 @@
 
 
 
-python client.py --host=134.168.55.114 --port=5672 --user=synthetic --password=dublin --subscribe='GOFLEX/v1/Response' --publish='GOFLEX/v1/Request'
+python client.py --host=HOST --port=PORT --user=USER --password=PASSWORD --subscribe='GOFLEX/v1/Response' --publish='GOFLEX/v1/Request'
 
 
