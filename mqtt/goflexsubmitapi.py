@@ -80,9 +80,9 @@ class GoFlexMeterSubmissionAPI():
         self.client.publish(self.topic, message)
         self.sent += 1
 
-    def close(self, wait=3):
+    def close(self, wait=5):
         # give time for publish to complete
-        if self.sent != self.ackd:
-            time.sleep(wait)
+        #if self.sent != self.ackd:
+        time.sleep(wait)
         self.client.disconnect()
 
