@@ -5,6 +5,7 @@ import os
 import ssl
 import time
 import json
+import threading
 
 import paho.mqtt.client as mqtt
 
@@ -33,11 +34,15 @@ class GoFlexMeterSubmissionAPI():
         self.client.username_pw_set(username, password)
 
         address = config['address']
+
+        self._condition = threading.Condition()
         self.client.connect(address, 8883)
+        self.client.loop_start()
+
+        with self._condition:
+            self._condition.wait()
 
         self.topic = config['topic']
-        self.sent = 0
-        self.ackd = 0
 
     def config_file_parse(self, jsonfile):
         #Parse json file for server connection details, return dict
@@ -71,19 +76,20 @@ class GoFlexMeterSubmissionAPI():
         #callback when client connects to broker
         print 'connected ' + str(result)
 
+        with self._condition:
+            self._condition.notify()
+
     def on_publish(self, client, userdata, result):
         #Callback when publish attempted
-        self.ackd += 1
         print 'published ' + str(result)
 
     def publish(self, message):
         rc = self.client.publish(self.topic, message)
         rc.wait_for_publish()
-        self.sent += 1
 
-    def close(self, wait=5):
+    def close(self):
         # give time for publish to complete
-        #if self.sent != self.ackd:
-        time.sleep(wait)
+
+        self.client.loop_stop()
         self.client.disconnect()
 
