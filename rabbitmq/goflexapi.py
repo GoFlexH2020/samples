@@ -39,11 +39,18 @@ class GoFlexAPI():
                           ))
 
     def receive(self, timeout, message_handler):
+        messages = 0
+
         for msg in self.subscriber.consume(self.subscribe_topic, inactivity_timeout=timeout):
-            if msg is not None:
-                method_frame, properties, body = msg
-                self.subscriber.basic_ack(method_frame.delivery_tag)
-                done = message_handler(body)
-                if done is not None:
-                    break;
+            if msg is None:
+                break
+           
+            messages += 1 
+            method_frame, properties, body = msg
+            self.subscriber.basic_ack(method_frame.delivery_tag)
+            done = message_handler(body)
+            if done is not None:
+                break;
+
+        return messages
 

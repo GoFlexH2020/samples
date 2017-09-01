@@ -72,7 +72,12 @@ def main(argv=None):
 
         #Now wait for the reply
         print('Waiting for messages. To exit press CTRL+C')
-        api.receive(1, process_reply)
+
+        timeout_seconds = 5
+        messages = api.receive(timeout_seconds, process_reply)
+        if messages is 0:
+            print 'Timed out waiting for reply.'
+
     except KeyboardInterrupt:
         print("Stopping")
     except Exception as e:
