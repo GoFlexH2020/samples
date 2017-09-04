@@ -6,6 +6,8 @@ import ssl
 import time
 import json
 import threading
+import datetime
+import pytz
 
 import paho.mqtt.client as mqtt
 
@@ -43,6 +45,26 @@ class GoFlexMeterSubmissionAPI():
             self._condition.wait()
 
         self.topic = config['topic']
+
+
+    def utc_offset(self, local_datetime_str, local_timezone_str, datetime_format):
+        '''given a local datetime string, local timezone, and optional datetime format,
+           return a utc, offset tuple, or None on failure
+        '''
+
+        try:
+            local_tz_obj = pytz.timezone(local_timezone_str)
+            basic_dt_obj = datetime.datetime.strptime(local_datetime_str, datetime_format)
+            local_dt_obj = local_tz_obj.normalize(local_tz_obj.localize(basic_dt_obj))
+
+            utc_dt_str = local_dt_obj.astimezone(pytz.utc).strftime('%Y-%m-%d %H:%M:%S')
+            offset = local_dt_obj.strftime('%z')
+        except pytz.exceptions.UnknownTimeZoneError:
+            print 'unknown timezone {}'.format(local_timezone_str)
+            return None
+
+        #return utc_dt_str, offset)
+        return utc_dt_str
 
     def config_file_parse(self, jsonfile):
         #Parse json file for server connection details, return dict

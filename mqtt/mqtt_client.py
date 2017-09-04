@@ -17,13 +17,33 @@ def anonymize(row):
     return row
 
 
-def to_json(row, seperator=','):
+def to_json(client, row, seperator=','):
     #split a csv row into values and insert into dictionary
     values = row.split(seperator)
 
+    #This date_format matches the format in the associated sample.csv
+    date_format = '%Y-%m-%d %H:%M:%S'
+
+    #If your date format is different, please change, for example
+    #01/09/2015 00:00 requires the following change
+    #date_format = '%d/%m/%Y %H:%M'
+
+    #Note: the observed_timestamp field should be UTC prior to submission
+    #The following code assumes a local timestamp and converts to UTC
+    #If your timestamp is already UTC the following line is appropriate
+    #timezone = 'UTC'
+
+    timezone = 'Europe/Nicosia'
+
+    #Update your timezone as appropriate
+    #for example 
+    #timezone = 'Europe/Zurich'
+
+    timestamp = client.utc_offset(values[1], timezone, date_format)
+
     tmp = {}
     tmp['ts_id'] = values[0]
-    tmp['observed_timestamp'] = values[1]
+    tmp['observed_timestamp'] = timestamp
     tmp['value'] = values[2]
 
     return json.dumps({"msRequest": {"args": tmp}})
@@ -46,7 +66,7 @@ def publish(client, filename):
         anon = anonymize(row_str)
 
         #Lets convert our comma separated values to json and upload
-        data = to_json(anon)
+        data = to_json(client, anon)
         client.publish(data)
 
 
