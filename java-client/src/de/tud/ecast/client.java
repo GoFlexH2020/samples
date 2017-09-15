@@ -41,7 +41,7 @@ public class client {
 		//Add the appropriate date range etc
 		JSONTokener jsonTokener = new JSONTokener(jsonFile);
 		JSONObject message = new JSONObject(jsonTokener);
-		message.getJSONObject("serviceRequest").getJSONObject("service").getJSONObject("args").put("ts_id", 0);
+		message.getJSONObject("serviceRequest").getJSONObject("service").getJSONObject("args").put("ts_id", "7440");
 		message.getJSONObject("serviceRequest").getJSONObject("service").getJSONObject("args").put("from", "2009-07-13T00:00:00+0000");
 		message.getJSONObject("serviceRequest").getJSONObject("service").getJSONObject("args").put("to", "2017-07-14T01:00:00+0000");
 		
