@@ -20,11 +20,15 @@ def process_reply(msg):
         service = response['service']
         code = service['status']
 
-        if code is 202:
+        if code == 202:
             print 'Request accepted.'
-        elif code is 200:
+        elif code == 200:
             print 'Request complete.'
             print("Received %r" % message)
+            have_answer = 1
+        elif code > 400:
+            error = service['result']
+            print 'Error (%d): %s' % (code, error)
             have_answer = 1
         else:
             error = service['result']
@@ -61,9 +65,9 @@ def main(argv=None):
         api = GoFlexAPI(args.host, args.port, args.user, args.password, args.publish_topic, args.subscribe_topic)
 
         #Add the appropriate date range etc
-        message['serviceRequest']['service']['args']['ts_id'] = 0
-        message['serviceRequest']['service']['args']['from'] = "2009-07-13T00:00:00+0000"
-        message['serviceRequest']['service']['args']['to'] = "2017-07-14T01:00:00+0000"
+        message['serviceRequest']['service']['args']['ts_id'] = "7440"
+        message['serviceRequest']['service']['args']['from'] = "2009-07-13 00:00:00"
+        message['serviceRequest']['service']['args']['to'] = "2017-07-14 01:00:00"
 
         #And send our message
         correlation_id = 1
