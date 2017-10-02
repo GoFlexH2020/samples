@@ -28,8 +28,10 @@ class GoFlexAPI():
         return channel
 
     def publish(self, message, correlation):
+        message['serviceRequest']['requestor'] = {}
         message['serviceRequest']['requestor']['replyTo'] = self.subscribe_topic
         message['serviceRequest']['requestor']['clientID'] = self.client_id
+        message['serviceRequest']['requestor']['transient'] = True
         message['serviceRequest']['requestor']['correlationID'] = correlation
         json_message = json.dumps(message)
 
@@ -44,11 +46,17 @@ class GoFlexAPI():
         for msg in self.subscriber.consume(self.subscribe_topic, inactivity_timeout=timeout):
             if msg is None:
                 break
-           
+
             messages += 1 
             method_frame, properties, body = msg
             self.subscriber.basic_ack(method_frame.delivery_tag)
-            done = message_handler(body)
+
+            fullmessage = json.loads(body)
+            service = fullmessage['serviceResponse']['service']
+            code = service['status']
+            correlation = fullmessage['serviceResponse']['requestor']['correlationID']
+
+            done = message_handler(fullmessage, service, code, correlation)
             if done is not None:
                 break;
 
