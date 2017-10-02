@@ -64,7 +64,7 @@ def request_meter_data(api, meter, from_date, to_date, correlation):
             "serviceRequest": { 
                 "service": { 
                     "args": {
-                        "ts_id": meter,
+                        "device_id": meter,
                         "from": from_date,
                         "to": to_date
                     },
