@@ -42,7 +42,7 @@ def to_json(client, row, seperator=','):
     timestamp = client.utc_offset(values[1], timezone, date_format)
 
     tmp = {}
-    tmp['ts_id'] = values[0]
+    tmp['device_id'] = values[0]
     tmp['observed_timestamp'] = timestamp
     tmp['value'] = values[2]
 
