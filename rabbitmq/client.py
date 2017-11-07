@@ -33,15 +33,20 @@ def process_result(message, service, code, correlation):
                 #{'status': 200, 'state': 'Finished', 'result': {'timeseriesMetadata': ['observedTimestampUTC', 'value'], 'timeseriesRows': xxx, 'timeseries': [[][]}, 'name': 'MeterDataRetrievalService'}
 
                 rows = service['result']['timeseriesRows']
-                if rows > 0:
-                    data = service['result']['timeseries']
+                data = service['result']['timeseries']
 
-                    global ts, ts_count
-                    ts_count += rows
-                    ts.extend(data)
-                    print("Received Rows: %r " % rows)
-                    print("Row 1: %r" % service['result']['timeseries'][0][0])
-                    print("Row %d: %r" % (rows, service['result']['timeseries'][rows-1]))
+                global ts_count
+                ts_count += rows
+
+                global ts
+                ts.extend(data)
+                print("Received Rows: %r " % service['result']['timeseriesRows'])
+                print("Row 1: %r" % service['result']['timeseries'][0])
+                print("Row %d: %r" % (rows, service['result']['timeseries'][rows-1]))
+
+                #for x in range(0, rows):
+                #    print(datetime.datetime.strptime(service['result']['timeseries'][x][0], '%Y-%m-%dT%H:%M:%S+00:00'))
+
             else:
                 raise Exception("Unknown correlation")
         except Exception as e:
@@ -55,7 +60,6 @@ def process_result(message, service, code, correlation):
 
     #return None to continue waiting for messages indefinitely
     return 1 
-
 
 
 def request_meter_data(api, meter, from_date, to_date, correlation):
@@ -74,13 +78,37 @@ def request_meter_data(api, meter, from_date, to_date, correlation):
         }
 
         #And send our message
-        correlation += 1
         api.publish(message, correlation)
         print 'Sent: %r' % message
 
         #Now wait for the reply
         print('Waiting for meter data. To exit press CTRL+C')
 
+        timeout_seconds = 30
+        messages = api.receive(timeout_seconds, process_result)
+        if messages is 0:
+            print 'Timed out waiting for reply.'
+            return
+    except Exception as e:
+        print('Error %r' % e) 
+
+
+def request_meter_list(api, correlation):
+    try:
+        message = { 
+            "serviceRequest": { 
+                "service": { 
+                    "args": {},
+                    "name": "MeterListingService"
+                }
+            }
+        }
+
+        api.publish(message, correlation)
+        print 'Sent: %r' % message
+
+        #Now wait for the reply
+        print('Waiting for meter listing. To exit press CTRL+C')
         timeout_seconds = 30
         messages = api.receive(timeout_seconds, process_result)
         if messages is 0:
@@ -99,6 +127,10 @@ def main(argv=None):
                  required=True, help='Username')
     parser.add_argument('--password', action='store', dest='password',
                  required=True, help='Password')
+    parser.add_argument('--vhost', action='store', dest='vhost',
+                 required=True, help='Virtual Host')
+    parser.add_argument('--cert', action='store', dest='cert',
+                 required=True, help='Certificate file')
     parser.add_argument('--publish', action='store', dest='publish_topic',
                  required=True, help='Publish topic')
     parser.add_argument('--subscribe', action='store', dest='subscribe_topic',
@@ -107,31 +139,13 @@ def main(argv=None):
 
     try:
         #Now connect to the messaging system
-        api = GoFlexAPI(args.host, args.port, args.user, args.password, args.publish_topic, args.subscribe_topic)
+        api = GoFlexAPI(args.host, args.port, args.user, args.password, args.vhost, 
+                          args.cert, args.publish_topic, args.subscribe_topic)
 
-        message = { 
-            "serviceRequest": { 
-                "service": { 
-                    "args": {},
-                    "name": "MeterListingService"
-                }
-            }
-        }
+        request_meter_list(api, 1)
 
-        correlation = 1
-        api.publish(message, correlation)
-        print 'Sent: %r' % message
-
-        print('Waiting for meter listing. To exit press CTRL+C')
-        timeout_seconds = 30
-        messages = api.receive(timeout_seconds, process_result)
-        if messages is 0:
-            print 'Timed out waiting for reply.'
-            return
-
-        global ts, ts_count, devices
-        request_meter_data(api, devices[0], "2001-07-13T00:00:00+00:00", "2020-08-13T01:00:00+00:00", correlation)
-        request_meter_data(api, devices[0], ts[ts_count-1][0], "2020-08-13T01:00:00+00:00", correlation)
+        global ts, ts_count
+        request_meter_data(api, devices[0], "2001-07-13T00:00:00+00:00", "2020-08-13T01:00:00+00:00", 2)
     except KeyboardInterrupt:
         print("Stopping")
     except Exception as e:

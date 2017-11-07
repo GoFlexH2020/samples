@@ -4,25 +4,29 @@
 import pika
 import uuid
 import json
+import ssl
 
 #NOTE: FOR GOFLEX OPERATIONS DONT CHANGE THE CONTENTS OF THIS FILE
 #REQUEST BUG FIXES OR ENHANCEMENTS AS NECESSARY
 
 
 class GoFlexAPI():
-    def __init__(self, host, port, user, password, publish, subscribe):
+    def __init__(self, host, port, user, password, vhost, cert, publish, subscribe):
         self.client_id = str(uuid.uuid4())
         self.publish_topic = publish
         self.subscribe_topic = subscribe + '/' + self.client_id
 
-        self.publisher = self.connect(host, port, user, password)
+        self.publisher = self.connect(host, port, user, password, vhost, cert)
         self.publisher.queue_declare(queue=self.publish_topic, durable=True)
-        self.subscriber = self.connect(host, port, user, password)
+        self.subscriber = self.connect(host, port, user, password, vhost, cert)
         self.subscriber.queue_declare(queue=self.subscribe_topic, auto_delete=True)
 
-    def connect(self, host, port, user, password):
+    def connect(self, host, port, user, password, vhost, cert):
+        ssl_options = dict(ssl_version=ssl.PROTOCOL_TLSv1_2,
+                            ca_certs=cert,
+                            cert_reqs=ssl.CERT_REQUIRED)
         credentials = pika.PlainCredentials(user, password)
-        parameters = pika.ConnectionParameters(host, port, '/', credentials)
+        parameters = pika.ConnectionParameters(host, port, vhost, credentials, ssl=True, ssl_options=ssl_options)
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
         return channel
