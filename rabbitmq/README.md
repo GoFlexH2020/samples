@@ -37,10 +37,13 @@ A request to the GoFlex service platform takes the following form:
 
 The sample assumes a TLS enabled RabbitMQ host. To run the client sample code:
 
+``` 
 python client.py --host=HOST --port=PORT --user=USER --password=PASSWORD --vhost=VHOST --cert=CERTFILE --subscribe='ResponseTOPIC' --publish='RequestTOPIC'
+``` 
 
+``` 
 python KeyValueService-Sample.py --host=HOST --port=PORT --user=USER --password=PASSWORD --vhost=VHOST --cert=CERTFILE --subscribe='ResponseTOPIC' --publish='RequestTOPIC'
-
+``` 
 
 The credentials for the host must be available prior to launch.
 
