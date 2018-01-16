@@ -6,6 +6,8 @@ import csv
 import json
 import time
 import sys
+import datetime
+from dateutil.tz import tzutc
 
 from goflexsubmitapi import GoFlexMeterSubmissionAPI
 
@@ -28,18 +30,17 @@ def to_json(client, row, seperator=','):
     #01/09/2015 00:00 requires the following change
     #date_format = '%d/%m/%Y %H:%M'
 
-    #Note: the observed_timestamp field should be UTC prior to submission
+    #Note: the observed_timestamp field should be iso8601 UTC prior to submission
     #The following code assumes a local timestamp and converts to UTC
-    #If your timestamp is already UTC the following line is appropriate
-    #timezone = 'UTC'
-
-    timezone = 'Europe/Nicosia'
 
     #Update your timezone as appropriate
-    #for example 
+    #If your timestamp is already UTC the following line is appropriate
+    #timezone = 'UTC'
     #timezone = 'Europe/Zurich'
+    timezone = 'Europe/Nicosia'
 
     timestamp = client.utc_offset(values[1], timezone, date_format)
+    timestamp = datetime.datetime.strptime(timestamp, date_format).replace(tzinfo=tzutc()).isoformat()
 
     tmp = {}
     tmp['device_id'] = values[0]
