@@ -32,99 +32,27 @@ def process_result(message, service, code, correlation):
     return 1 
 
 
-def keyValueServicePut(api, correlation):
+
+def keyValueService(api, cmd, keys, correlation):
     try:
-        message = { 
-            "serviceRequest": { 
-                "service": { 
-				    "name": "KeyValueService",
+        message = {
+            "serviceRequest": {
+                "service": {
+                    "name": "KeyValueService",
                     "args": {
-						"cmd":"put",
-						"keys":[
-							["simpleKeyValueInc","0"],
-							["simpleKeyValueAvg","0"],
-							["jsonKeyValue","{\"json\":\"value\"}"]
-						]
-					}
+                        "cmd": cmd,
+                        "keys": keys
+                    }
                 }
             }
         }
 
         api.publish(message, correlation)
-        print 'Sent: %r' % message
-
-        #Now wait for the reply
-        print('Waiting for reply. To exit press CTRL+C')
-        timeout_seconds = 10
-        messages = api.receive(timeout_seconds, process_result)
+        messages = api.receive(10, process_result)
         if messages is 0:
             print 'Timed out waiting for reply.'
-            return
     except Exception as e:
-        print('Error %r' % e) 
-		
-		
-def keyValueServiceDel(api, correlation):
-    try:
-        message = { 
-            "serviceRequest": { 
-                "service": { 
-				    "name": "KeyValueService",
-                    "args": {
-						"cmd":"del",
-						"keys":[
-							["simpleKeyValueInc"],
-							["simpleKeyValueAvg"],
-							["jsonKeyValue"]
-						]
-					}
-                }
-            }
-        }
-
-        api.publish(message, correlation)
-        print 'Sent: %r' % message
-
-        #Now wait for the reply
-        print('Waiting for reply. To exit press CTRL+C')
-        timeout_seconds = 10
-        messages = api.receive(timeout_seconds, process_result)
-        if messages is 0:
-            print 'Timed out waiting for reply.'
-            return
-    except Exception as e:
-        print('Error %r' % e) 
-		
-def keyValueServiceGet(api, correlation):
-    try:
-        message = { 
-            "serviceRequest": { 
-                "service": { 
-				    "name": "KeyValueService",
-                    "args": {
-						"cmd":"get",
-						"keys":[
-							["simpleKeyValueInc"],
-							["simpleKeyValueAvg"],
-							["jsonKeyValue"]
-						]
-					}
-                }
-            }
-        }
-
-        api.publish(message, correlation)
-        print 'Sent: %r' % message
-
-        #Now wait for the reply
-        print('Waiting for reply. To exit press CTRL+C')
-        timeout_seconds = 10
-        messages = api.receive(timeout_seconds, process_result)
-        if messages is 0:
-            print 'Timed out waiting for reply.'
-            return
-    except Exception as e:
-        print('Error %r' % e) 
+        print('Error %r' % e)
 
 
 def main(argv=None):
@@ -151,21 +79,24 @@ def main(argv=None):
         api = GoFlexAPI(args.host, args.port, args.user, args.password, args.vhost, 
                           args.cert, args.publish_topic, args.subscribe_topic)
 
-        keyValueServicePut(api, 1)
-		# simpleKeyValueInc = 0
-		# simpleKeyValueAvg = 0
-		# jsonKeyValue   = "{"json":"value"}"
+        keyValueService(api, 'put', [
+                                        ["simpleKeyValueInc","0"],
+                                        ["simpleKeyValueAvg","0"],
+                                        ["jsonKeyValue","{\"json\":\"value\"}"]
+                                    ], 1)
 		
-        keyValueServiceGet(api, 2)
-		# simpleKeyValueInc = 1
-		# simpleKeyValueAvg = 10
-		# jsonKeyValue   = "{"json":"value"}"
+        keyValueService(api, 'get', [
+                                        ["simpleKeyValueInc"],
+                                        ["simpleKeyValueAvg"],
+                                        ["jsonKeyValue"]
+                                    ], 2)
 
-        keyValueServiceDel(api, 3)
-		# simpleKeyValueInc = undefined
-		# simpleKeyValueAvg = undefined
-		# jsonKeyValue   = undefined
-		
+        keyValueService(api, 'del', [
+                                        ["simpleKeyValueInc"],
+                                        ["simpleKeyValueAvg"],
+                                        ["jsonKeyValue"]
+                                    ], 3)
+	
     except KeyboardInterrupt:
         print("Stopping")
     except Exception as e:
