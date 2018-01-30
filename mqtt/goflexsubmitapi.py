@@ -106,7 +106,7 @@ class GoFlexMeterSubmissionAPI():
         print 'published ' + str(result)
 
     def publish(self, message):
-        rc = self.client.publish(self.topic, message)
+        rc = self.client.publish(self.topic, message, qos=2)
         rc.wait_for_publish()
 
     def close(self):
