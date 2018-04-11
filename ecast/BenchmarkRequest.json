@@ -1,0 +1,18 @@
+{
+    'serviceRequest' : {
+        'requestor' : {
+            'replyTo' : 'address',
+            'transient' : True,
+            'correlationID' : 0,
+            'clientID' : 'id'
+        },
+        'service' : {
+            'args' : {
+                'deviceId' : '7440',
+                'startTime' : '2010-06-01T00:00:00+00:00',
+                'horizon' : 12
+            },
+            'name':'BenchmarkRequest'
+        }
+    }
+}
