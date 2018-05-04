@@ -96,14 +96,14 @@ class GoFlexMeterSubmissionAPI():
 
     def on_connect(self, client, userdata, flags, result):
         #callback when client connects to broker
-        print 'connected ' + str(result)
+        print 'Connected.'
 
         with self._condition:
             self._condition.notify()
 
     def on_publish(self, client, userdata, result):
         #Callback when publish attempted
-        print 'published ' + str(result)
+        print 'Published ' + str(result)
 
     def publish(self, message):
         rc = self.client.publish(self.topic, message, qos=2)

@@ -42,12 +42,7 @@ def to_json(client, row, seperator=','):
     timestamp = client.utc_offset(values[1], timezone, date_format)
     timestamp = datetime.datetime.strptime(timestamp, date_format).replace(tzinfo=tzutc()).isoformat()
 
-    tmp = {}
-    tmp['device_id'] = values[0]
-    tmp['observed_timestamp'] = timestamp
-    tmp['value'] = values[2]
-
-    return json.dumps({"msRequest": {"args": tmp}})
+    return {"observed_timestamp": timestamp, "device_id": values[0], "value": values[2]}
 
 
 def read_row(filename):
@@ -59,6 +54,9 @@ def read_row(filename):
 
 
 def publish(client, filename):
+    data = [];
+    count = 0
+
     #Iterate over csv file and upload to server
     for row in read_row(filename):
         row_str = ','.join(row)
@@ -66,15 +64,26 @@ def publish(client, filename):
         #Call our function to remove sensitive personal data, if any
         anon = anonymize(row_str)
 
-        #Lets convert our comma separated values to json and upload
-        data = to_json(client, anon)
-        client.publish(data)
+        #Lets convert our comma separated values to json and add to upload
+        data.append(to_json(client, anon))
+
+        count += 1
+        if count % 100 == 0:
+            #Now upload
+            client.publish(json.dumps(data))
+            data = []
+
+    if len(data) > 0:
+        print(json.dumps(data))
+        client.publish(json.dumps(data))
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description='submit data to ingestion service')
     parser.add_argument('--config', action='store', dest='config',
                  required=True, help='configuration file')
+    parser.add_argument('--data', action='store', dest='data',
+                     required=True, help='data file')
 
     args = parser.parse_args()
     client = None
@@ -84,7 +93,7 @@ def main(argv=None):
         client = GoFlexMeterSubmissionAPI(args.config)
 
         #Now lets upload our meter data
-        publish(client, './sample.csv')
+        publish(client, args.data)
     except Exception as e:
         print 'Error: %r' % e
     finally:
