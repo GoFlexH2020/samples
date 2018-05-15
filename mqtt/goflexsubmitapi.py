@@ -8,6 +8,7 @@ import json
 import threading
 import datetime
 import pytz
+import logging
 
 import paho.mqtt.client as mqtt
 
@@ -36,6 +37,13 @@ class GoFlexMeterSubmissionAPI():
         self.client.username_pw_set(username, password)
 
         address = config['address']
+        self.topic = config['topic']
+
+        self.logger = logging.getLogger()
+        if not self.logger.handlers:
+            logging.basicConfig(level=logging.INFO,
+                format='%(asctime)s.%(msecs)03d %(levelname)-6s %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
         self._condition = threading.Condition()
         self.client.connect(address, 8883)
@@ -43,8 +51,6 @@ class GoFlexMeterSubmissionAPI():
 
         with self._condition:
             self._condition.wait()
-
-        self.topic = config['topic']
 
 
     def utc_offset(self, local_datetime_str, local_timezone_str, datetime_format):
@@ -60,7 +66,7 @@ class GoFlexMeterSubmissionAPI():
             utc_dt_str = local_dt_obj.astimezone(pytz.utc).strftime('%Y-%m-%d %H:%M:%S')
             offset = local_dt_obj.strftime('%z')
         except pytz.exceptions.UnknownTimeZoneError:
-            print 'unknown timezone {}'.format(local_timezone_str)
+            self.logger.info('unknown timezone {}'.format(local_timezone_str))
             return None
 
         #return utc_dt_str, offset)
@@ -96,14 +102,14 @@ class GoFlexMeterSubmissionAPI():
 
     def on_connect(self, client, userdata, flags, result):
         #callback when client connects to broker
-        print 'Connected.'
+        self.logger.info('Connected.')
 
         with self._condition:
             self._condition.notify()
 
     def on_publish(self, client, userdata, result):
         #Callback when publish attempted
-        print 'Published ' + str(result)
+        self.logger.info('Published ' + str(result))
 
     def publish(self, message):
         rc = self.client.publish(self.topic, message, qos=2)
