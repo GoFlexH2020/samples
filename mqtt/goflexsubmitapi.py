@@ -63,7 +63,7 @@ class GoFlexMeterSubmissionAPI():
             basic_dt_obj = datetime.datetime.strptime(local_datetime_str, datetime_format)
             local_dt_obj = local_tz_obj.normalize(local_tz_obj.localize(basic_dt_obj))
 
-            utc_dt_str = local_dt_obj.astimezone(pytz.utc).strftime('%Y-%m-%d %H:%M:%S')
+            utc_dt_str = local_dt_obj.astimezone(pytz.utc).strftime(datetime_format)
             offset = local_dt_obj.strftime('%z')
         except pytz.exceptions.UnknownTimeZoneError:
             self.logger.info('unknown timezone {}'.format(local_timezone_str))
