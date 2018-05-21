@@ -25,6 +25,7 @@ class GoFlexMeterSubmissionAPI():
         self.client = mqtt.Client(client_id=client_id, clean_session=True)
 
         self.client.on_connect = self.on_connect
+        self.client.on_disconnect = self.on_disconnect
         self.client.on_publish = self.on_publish
 
         cafile = config['cafile']
@@ -40,18 +41,18 @@ class GoFlexMeterSubmissionAPI():
         self.topic = config['topic']
 
         self.logger = logging.getLogger()
-        if not self.logger.handlers:
-            logging.basicConfig(level=logging.INFO,
-                format='%(asctime)s.%(msecs)03d %(levelname)-6s %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
-
         self._condition = threading.Condition()
+        
+        self.mqtt_status = 0
         self.client.connect(address, 8883)
         self.client.loop_start()
 
         with self._condition:
             self._condition.wait()
 
+        if self.mqtt_status != 0:
+            raise Exception("Broker connection issue: " + str(self.mqtt_status))
+            
 
     def utc_offset(self, local_datetime_str, local_timezone_str, datetime_format):
         '''given a local datetime string, local timezone, and optional datetime format,
@@ -100,16 +101,20 @@ class GoFlexMeterSubmissionAPI():
 
         return config
 
+    def on_disconnect(self, client, userdata, reason):
+        self.logger.debug('Broker: disconnected...' + str(reason))
+
     def on_connect(self, client, userdata, flags, result):
         #callback when client connects to broker
-        self.logger.info('Connected.')
+        self.logger.debug('Broker: connected - %d' % result)
+        self.mqtt_status = result
 
         with self._condition:
             self._condition.notify()
 
     def on_publish(self, client, userdata, result):
         #Callback when publish attempted
-        self.logger.info('Published ' + str(result))
+        self.logger.debug('Published ' + str(result))
 
     def publish(self, message):
         rc = self.client.publish(self.topic, message, qos=2)
