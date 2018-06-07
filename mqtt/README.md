@@ -13,13 +13,13 @@ Install package dependencies
 pip install -r requirements.txt
 ```
 
-####Run 
+#### Run 
 
 ```
 python mqtt_client.py --broker=broker-config.json --dir=./ --pattern=s*.csv --state=state-sample.json --flavour=1 --batch=10 
 ```
 
-####Parameters
+#### Parameters
 
 --broker
 A json file that contains all the required information to connect to the IBM Service Platform MQTT Broker. This file will be supplied to you by IBM and it should be Read Only.
