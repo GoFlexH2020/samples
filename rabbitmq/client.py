@@ -23,26 +23,26 @@ def process_result(message, service, code, correlation):
         try:
             if correlation == 1:
                 #{'status': 200, 'state': u'Finished', 'name': 'MeterListingService', 'result': {'deviceCount': xxx, 'deviceMetadata': ['Device Name'], 'devices': []}}
-                print("Received Rows: %r " % service['result']['deviceCount'])
+                print("Received Rows: %r " % service['result']['count'])
 
                 global devices
-                devices = list(service['result']['devices'])
+                devices = list(service['result']['ts_ids'])
                 print("Devices: %r" % devices)
                 print(devices[0])
             elif correlation >= 2:
                 #{'status': 200, 'state': 'Finished', 'result': {'timeseriesMetadata': ['observedTimestampUTC', 'value'], 'timeseriesRows': xxx, 'timeseries': [[][]}, 'name': 'MeterDataRetrievalService'}
 
-                rows = service['result']['timeseriesRows']
-                data = service['result']['timeseries']
+                rows = service['result']['count']
+                data = service['result']['values']
 
                 global ts_count
                 ts_count += rows
 
                 global ts
                 ts.extend(data)
-                print("Received Rows: %r " % service['result']['timeseriesRows'])
-                print("Row 1: %r" % service['result']['timeseries'][0])
-                print("Row %d: %r" % (rows, service['result']['timeseries'][rows-1]))
+                print("Received Rows: %r " % service['result']['count'])
+                print("Row 1: %r" % service['result']['values'][0])
+                print("Row %d: %r" % (rows, service['result']['values'][rows-1]))
 
                 #for x in range(0, rows):
                 #    print(datetime.datetime.strptime(service['result']['timeseries'][x][0], '%Y-%m-%dT%H:%M:%S+00:00'))
@@ -67,12 +67,13 @@ def request_meter_data(api, meter, from_date, to_date, correlation):
         message = { 
             "serviceRequest": { 
                 "service": { 
+                    "name": "TimeseriesService",
                     "args": {
+                        "cmd": "ts/get_timeseries_values",
                         "device_id": meter,
                         "from": from_date,
                         "to": to_date
-                    },
-                    "name": "MeterDataRetrievalService"
+                    }
                 }
             }
         }
@@ -98,8 +99,10 @@ def request_meter_list(api, correlation):
         message = { 
             "serviceRequest": { 
                 "service": { 
-                    "args": {},
-                    "name": "MeterListingService"
+                    "name": "TimeseriesService",
+                    "args": {
+                        "cmd": "ts/get_time_series"
+                    }
                 }
             }
         }
