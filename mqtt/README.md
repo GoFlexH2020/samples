@@ -17,7 +17,7 @@ pip install -r requirements.txt
 Run 
 
 ```
-python mqtt_client.py --config=a config file
+python mqtt_client.py --broker=broker-config.json --dir=./ --pattern=s*.csv --state=state-sample.json --flavour=1 --batch=10 
 ```
 
 
