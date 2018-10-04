@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 #author robertgo@ie.ibm.com
 
-import argparse
 import json
 import time
 import sys
 
+from messages import GoFlexMessageFormatter
 from goflexapi import GoFlexAPI
-
-parser = argparse.ArgumentParser(description='Sample AMQP client')
 
 
 def process_result(message, service, code, correlation):
@@ -16,7 +14,6 @@ def process_result(message, service, code, correlation):
         print 'Request complete:'
 
         try:
-            global result
             result = list(service['result'])
             print("Result: %r" % result)
         except Exception as e:
@@ -32,71 +29,35 @@ def process_result(message, service, code, correlation):
     return 1 
 
 
-
-def keyValueService(api, cmd, keys, correlation):
-    try:
-        message = {
-            "serviceRequest": {
-                "service": {
-                    "name": "KeyValueService",
-                    "args": {
-                        "cmd": cmd,
-                        "keys": keys
-                    }
-                }
-            }
-        }
-
-        api.publish(message, correlation)
-        messages = api.receive(10, process_result)
-        if messages is 0:
-            print 'Timed out waiting for reply.'
-    except Exception as e:
-        print('Error %r' % e)
-
-
 def main(argv=None):
-    parser.add_argument('--host', action='store', dest='host',
-                 required=True, help='Host name or ip')
-    parser.add_argument('--port', action='store', dest='port',
-                 required=True, help='Port number', type=int)
-    parser.add_argument('--user', action='store', dest='user',
-                 required=True, help='Username')
-    parser.add_argument('--password', action='store', dest='password',
-                 required=True, help='Password')
-    parser.add_argument('--vhost', action='store', dest='vhost',
-                 required=True, help='Virtual Host')
-    parser.add_argument('--cert', action='store', dest='cert',
-                 required=True, help='Certificate file')
-    parser.add_argument('--publish', action='store', dest='publish_topic',
-                 required=True, help='Publish topic')
-    parser.add_argument('--subscribe', action='store', dest='subscribe_topic',
-                 required=True, help='Subscribe topic')
-    args = parser.parse_args()
-
     try:
         #Now connect to the messaging system
-        api = GoFlexAPI(args.host, args.port, args.user, args.password, args.vhost, 
-                          args.cert, args.publish_topic, args.subscribe_topic)
+        api = GoFlexAPI(argv) 
+        formatter = GoFlexMessageFormatter()
 
-        keyValueService(api, 'put', [
-                                        ["simpleKeyValueInc","0"],
-                                        ["simpleKeyValueAvg","0"],
-                                        ["jsonKeyValue","{\"json\":\"value\"}"]
-                                    ], 1)
+        msg = formatter.keyValueService('put', [
+                                                    ["simpleKeyValueInc","0"],
+                                                    ["simpleKeyValueAvg","0"],
+                                                    ["jsonKeyValue","{\"json\":\"value\"}"]
+                                                ]
+        )
+        api.invoke_service(msg, 1, process_result, timeout=30)
 		
-        keyValueService(api, 'get', [
-                                        ["simpleKeyValueInc"],
-                                        ["simpleKeyValueAvg"],
-                                        ["jsonKeyValue"]
-                                    ], 2)
+        msg = formatter.keyValueService('get', [
+                                                    ["simpleKeyValueInc"],
+                                                    ["simpleKeyValueAvg"],
+                                                    ["jsonKeyValue"]
+                                                ]
+        )
+        api.invoke_service(msg, 2, process_result, timeout=30)
 
-        keyValueService(api, 'del', [
-                                        ["simpleKeyValueInc"],
-                                        ["simpleKeyValueAvg"],
-                                        ["jsonKeyValue"]
-                                    ], 3)
-	
+        msg = formatter.keyValueService('del', [
+                                                    ["simpleKeyValueInc"],
+                                                    ["simpleKeyValueAvg"],
+                                                    ["jsonKeyValue"]
+                                                ]
+        )
+        api.invoke_service(msg, 3, process_result, timeout=30)
     except KeyboardInterrupt:
         print("Stopping")
     except Exception as e:
