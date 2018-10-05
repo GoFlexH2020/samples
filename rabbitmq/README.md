@@ -44,6 +44,9 @@ python client.py --host=HOST --port=PORT --user=USER --password=PASSWORD --vhost
 ``` 
 python KeyValueService-Sample.py --host=HOST --port=PORT --user=USER --password=PASSWORD --vhost=VHOST --cert=CERTFILE --subscribe='ResponseTOPIC' --publish='RequestTOPIC'
 ``` 
+```
+python WeatherService-Sample.py --host=HOST --port=PORT --user=USER --password=PASSWORD --vhost=VHOST --cert=CERTFILE --subscribe='ResponseTOPIC' --publish='RequestTOPIC' --twodayhourlyforecast_api_key YOUR_KEY --solar15dayforecast_api_key YOUR_KEY --cleanedhistorical_api_key YOUR_KEY
+```
 
 The credentials for the host must be available prior to launch.
 
