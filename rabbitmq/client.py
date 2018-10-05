@@ -18,7 +18,7 @@ ts_count = 0
 
 def process_result(message, service, code, correlation):
     if code == 200:
-        print('Request complete.')
+        print('Request complete:', correlation)
 
         try:
             if correlation == 1:
@@ -28,7 +28,7 @@ def process_result(message, service, code, correlation):
                 devices = list(service['result']['ts_ids'])
                 print("Devices: %r" % devices)
                 print(devices[0])
-            elif correlation >= 2:
+            elif correlation == 2:
                 rows = service['result']['count']
                 data = service['result']['values']
 
@@ -40,6 +40,9 @@ def process_result(message, service, code, correlation):
                 print("Received Rows: %r " % service['result']['count'])
                 print("Row 1: %r" % service['result']['values'][0])
                 print("Row %d: %r" % (rows, service['result']['values'][rows-1]))
+            elif correlation == 3:
+                print(message)
+                pass
             else:
                 raise Exception("Unknown correlation")
         except Exception as e:
@@ -67,6 +70,15 @@ def main(argv=None):
 
         global ts, ts_count
         msg = formatter.request_meter_data(devices[0], "2001-07-13T00:00:00+00:00", "2020-08-13T01:00:00+00:00")
+        duration = api.invoke_service(msg, 2, process_result, timeout=30)
+        print('Duration: ', duration)
+
+        values = [ {'ts_id':'my-time-series-id','observed_timestamp':'2018-10-05T11:07:00+00:00', 'value': 21.1 } ]
+        msg = formatter.store_time_series(values)
+        duration = api.invoke_service(msg, 3, process_result, timeout=30)
+        print('Duration: ', duration)
+
+        msg = formatter.request_meter_data('my-time-series-id', "2018-10-05T11:00:00+00:00", "2020-08-13T01:00:00+00:00")
         duration = api.invoke_service(msg, 2, process_result, timeout=30)
         print('Duration: ', duration)
     except KeyboardInterrupt:

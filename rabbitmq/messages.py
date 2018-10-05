@@ -37,6 +37,19 @@ class GoFlexMessageFormatter():
             }
         }
 
+    def store_time_series(self, values):
+        return {
+            "serviceRequest": {
+                "service": {
+                    "name": "TimeseriesService",
+                    "args": {
+                        "cmd": "ts/store_timeseries_values",
+                        "values": values
+                    }
+                }
+            }
+        }
+
     def keyValueService(self, cmd, keys):
         return {
             "serviceRequest": {
