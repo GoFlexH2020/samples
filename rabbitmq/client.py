@@ -73,6 +73,10 @@ def main(argv=None):
         duration = api.invoke_service(msg, 2, process_result, timeout=30)
         print('Duration: ', duration)
 
+        msg = formatter.average_time_series(devices[0], "2001-07-05T11:00:00+00:00", "2020-08-13T01:00:00+00:00")
+        duration = api.invoke_service(msg, 3, process_result, timeout=30)
+        print('Duration: ', duration)
+
         values = [ {'ts_id':'my-time-series-id','observed_timestamp':'2018-10-05T11:07:00+00:00', 'value': 21.1 } ]
         msg = formatter.store_time_series(values)
         duration = api.invoke_service(msg, 3, process_result, timeout=30)

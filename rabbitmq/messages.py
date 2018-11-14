@@ -50,6 +50,21 @@ class GoFlexMessageFormatter():
             }
         }
 
+    def average_time_series(self, meter, from_date, to_date):
+        return {
+            "serviceRequest": {
+                "service": {
+                 "name": "TimeseriesService",
+                    "args": {
+                        "cmd": "ts/average_timeseries_values",
+                        "device_id": meter,
+                        "from": from_date,
+                        "to": to_date
+                    }
+                }
+            }
+        }
+
     def keyValueService(self, cmd, keys):
         return {
             "serviceRequest": {
