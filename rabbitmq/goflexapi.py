@@ -106,7 +106,7 @@ class GoFlexAPI():
             fullmessage = json.loads(body)
             service = fullmessage['serviceResponse']['service']
             code = service['status']
-            correlation = fullmessage['serviceResponse']['requestor']['correlationID']
+            correlation = fullmessage['serviceResponse']['requestor']['correlationID'] if 'requestor' in 'serviceResponse' else None
 
             done = message_handler(fullmessage, service, code, correlation)
             if done is not None:

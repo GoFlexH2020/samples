@@ -18,12 +18,13 @@ ts_count = 0
 
 
 def process_result(message, service, code, correlation):
+    print(message)
     if code == 200:
         print('Request complete:')
 
         try:
             global result
-            print("Result: %r" % json.dumps(service['result']))
+            #print("Result: %r" % json.dumps(service['result']))
         except Exception as e:
             print('Error: %r ' % e)
     elif code > 400:
@@ -65,7 +66,7 @@ def main(argv=None):
         print('Duration: ', duration)
         
         # Weather Service - Cleaned Historical Observations
-        msg = formatter.weatherServiceCleanedHistorical(api.args.cleanedhistorical_api_key, lat, lng, "2017-01-01", 7)
+        msg = formatter.weatherServiceCleanedHistorical(api.args.cleanedhistorical_api_key, lat, lng, "2017-01-01", 1)
         duration = api.invoke_service(msg, 3, process_result, timeout=30)
         print('Duration: ', duration)
     except KeyboardInterrupt:
