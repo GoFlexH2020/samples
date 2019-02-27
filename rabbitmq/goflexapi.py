@@ -103,10 +103,24 @@ class GoFlexAPI():
             messages += 1 
             self.subscriber.basic_ack(method_frame.delivery_tag)
 
+            if type(body) == bytes:
+                body = body.decode()
+
             fullmessage = json.loads(body)
+
+            if 'serviceResponse' not in fullmessage:
+                raise Exception("No 'serviceResponse' in received message")
+
+            if 'service' not in fullmessage['serviceResponse']:
+                raise Exception("No 'service' in received message")
+
             service = fullmessage['serviceResponse']['service']
             code = service['status']
-            correlation = fullmessage['serviceResponse']['requestor']['correlationID'] if 'requestor' in 'serviceResponse' else None
+            correlation = None
+
+            if 'requestor' in fullmessage['serviceResponse']:
+                if 'correlationID' in fullmessage['serviceResponse']['requestor']:
+                    correlation = fullmessage['serviceResponse']['requestor']['correlationID']
 
             done = message_handler(fullmessage, service, code, correlation)
             if done is not None:
