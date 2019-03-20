@@ -3,7 +3,7 @@ Sample code for inter-component communications between GoFlex software component
 
 
 ## RabbitMQ (AMQP) Sample
-This sample relies on the availability of a RabbitMQ instance.
+This sample relies on the availability of a RabbitMQ instance, accessible remotely.
 
 
 The project Generalized Operational FLEXibility for Integrating Renewables in the Distribution Grid (GOFLEX) has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 731232.
