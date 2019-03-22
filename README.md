@@ -1,5 +1,5 @@
 # samples
-Sample code for the inter-component communications between various GoFlex software components.
+This sample code details how to drive inter-component communications between various GoFlex software components.
 
 
 ## RabbitMQ (AMQP) Sample
