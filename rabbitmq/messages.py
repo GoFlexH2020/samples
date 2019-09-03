@@ -65,6 +65,36 @@ class GoFlexMessageFormatter():
             }
         }
 
+    def register_model(self, model_name, entity_name, signal_name):
+        return {
+            "serviceRequest": {
+                "service": {
+                    "name": "TimeseriesService",
+                    "args": {
+                        "cmd": "register_model",
+                        "model_name": model_name,
+                        "entity": entity_name,
+                        "signal": signal_name
+                    }
+                }
+            }
+        }
+
+    def request_model_time_series(self, model_name, entity_name, signal_name):
+        return {
+            "serviceRequest": {
+                "service": {
+                    "name": "TimeseriesService",
+                    "args": {
+                        "cmd": "get_model_timeseries",
+                        "model_name": model_name,
+                        "entity": entity_name,
+                        "signal": signal_name
+                    }
+                }
+            }
+        }
+
     def keyValueService(self, cmd, keys):
         return {
             "serviceRequest": {

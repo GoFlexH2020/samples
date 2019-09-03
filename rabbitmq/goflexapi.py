@@ -128,7 +128,7 @@ class GoFlexAPI():
 
         return messages
 
-    def invoke_service(self, message, correlation, callback, timeout=30):
+    def invoke_service(self, message, correlation, callback, timeout=60):
         self.publish(message, correlation)
 
         #Now wait for the reply
