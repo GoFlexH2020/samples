@@ -1,0 +1,54 @@
+{
+	"id": null,
+	"label": "Trading FlexOffer: 2020-02-27 21:30:00 - 2020-02-27 21:30:00",
+	"state": "Initial",
+	"stateReason": null,
+	"creationInterval": 1758705,
+	"offeredById": "7500001",
+	"locationId": {},
+	"acceptanceBeforeInterval": 1758706,
+	"assignmentBeforeInterval": 1758706,
+	"startAfterInterval": 1758706,
+	"startBeforeInterval": 1758706,
+	"assignment": "obligatory",
+	"flexOfferProfileConstraints": [
+		{
+			"energyConstraintList": [
+				{
+					"lower": 0,
+					"upper": 0.5354
+				}
+			],
+			"tariffConstraint": {
+				"minTariff": -0.05,
+				"maxTariff": 0.34417258124766537
+			},
+			"minDuration": 1,
+			"maxDuration": 1
+		}
+	],
+	"flexOfferTariffConstraint": null,
+	"defaultSchedule": {
+		"scheduleId": 0,
+		"updateId": 0,
+		"scheduleSlices": [
+			{
+				"duration": 1,
+				"energyAmount": 0,
+				"tariff": 0
+			}
+		],
+		"startTime": "2020-02-27T20:30:00.000+0000"
+	},
+	"flexOfferSchedule": null,
+	"creationTime": "2020-02-27T20:15:00.000+0000",
+	"startAfterTime": "2020-02-27T20:30:00.000+0000",
+	"startBeforeTime": "2020-02-27T20:30:00.000+0000",
+	"assignmentBeforeTime": "2020-02-27T20:30:00.000+0000",
+	"endBeforeInterval": 1758707,
+	"numSecondsPerInterval": 900,
+	"acceptanceBeforeTime": "2020-02-27T20:30:00.000+0000",
+	"endAfterInterval": 1758707,
+	"endAfterTime": "2020-02-27T20:45:00.000+0000",
+	"endBeforeTime": "2020-02-27T20:45:00.000+0000"
+}
